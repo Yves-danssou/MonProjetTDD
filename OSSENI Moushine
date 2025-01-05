@@ -1,0 +1,348 @@
+testtesteur2.php
+
+<?php
+
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur2 extends TestCase
+{
+    private $pdo;
+    private $authentification;
+
+    protected function setUp(): void
+    {
+        
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->authentification = new Authentification($this->pdo);
+    }
+
+    private function createTable()
+    {
+       
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT,
+            mot_de_passe TEXT,
+            email TEXT
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testConnexion()
+    {
+        
+        $nomUtilisateur = "testuser";
+        $motDePasse = "Test@1234";
+        $email = "test@example.com";
+        
+      
+        $this->authentification->registerUser($nomUtilisateur, $motDePasse, $email);
+
+       
+        $resultat = $this->authentification->loginUser($nomUtilisateur, $motDePasse);
+        $this->assertTrue($resultat);
+
+      
+        $userId = $this->authentification->getUserId($nomUtilisateur);
+        $this->assertIsInt($userId);
+    }
+}
+?>
+
+testtesteur4.php
+
+<?php
+
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur4 extends TestCase
+{
+    private $pdo;
+    private $registration;
+
+    protected function setUp(): void
+    {
+        // Set up in-memory SQLite database for testing
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->registration = new Registration($this->pdo);
+    }
+
+    private function createTable()
+    {
+        // Create table for users
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT,
+            mot_de_passe TEXT,
+            email TEXT
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testComplexiteMotDePasse()
+    {
+        // Define test data with a weak password
+        $nomUtilisateur = "testuser";
+        $motDePasse = "simple"; // Weak password
+        $email = "test@example.com";
+
+        // Attempt to register the user with the weak password
+        $resultat = $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+        
+        // Assert that registration fails due to weak password
+        $this->assertFalse($resultat);
+    }
+}
+?>
+
+testtesteur6.php
+
+<?php
+require 'Registration.php';
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur6 extends TestCase
+{
+    private $pdo;
+    private $registration;
+
+    protected function setUp(): void
+    {
+        // Set up in-memory SQLite database for testing
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->registration = new Registration($this->pdo);
+    }
+
+    private function createTable()
+    {
+        // Create table with proper column length limits
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT,
+            mot_de_passe TEXT,
+            email TEXT
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testLimiteLongueurChamps()
+    {
+        // Create a username that exceeds the 255 character limit
+        $nomUtilisateur = str_repeat('a', 256);
+        $motDePasse = "Test@1234";
+        $email = "test@example.com";
+
+        // Attempt to register the user with an excessively long username
+        $resultat = $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+        
+        // Assert that registration fails due to exceeding the length limit for the username
+        $this->assertFalse($resultat);
+    }
+}
+?>
+
+testtesteur5.php
+
+<?php
+
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur5 extends TestCase
+{
+    private $pdo;
+    private $registration;
+
+    protected function setUp(): void
+    {
+        // Set up in-memory SQLite database for testing
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->registration = new Registration($this->pdo);
+    }
+
+    private function createTable()
+    {
+        // Create table for users
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT UNIQUE,
+            mot_de_passe TEXT,
+            email TEXT UNIQUE
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testUtilisateurDuplique()
+    {
+        // Define test user data
+        $nomUtilisateur = "testuser";
+        $motDePasse = "Test@1234";
+        $email = "test@example.com";
+
+        // Register the first user
+        $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+
+        // Attempt to register the second user with the same username and email
+        $resultat = $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+        
+        // Assert that the registration fails due to duplicate username or email
+        $this->assertFalse($resultat);
+    }
+}
+?>
+
+testtesteur1.php
+
+<?php
+require 'Registration.php';
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur1 extends TestCase
+{
+    private $pdo;
+    private $registration;
+
+    protected function setUp(): void
+    {
+        
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->registration = new Registration($this->pdo);
+    }
+
+    private function createTable()
+    {
+        
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT,
+            mot_de_passe TEXT,
+            email TEXT
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testInscription()
+    {
+        
+        $nomUtilisateur = "testuser";
+        $motDePasse = "Test@1234";
+        $email = "test@example.com";
+        
+    
+        $resultat = $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+        $this->assertTrue($resultat);
+
+       
+        $stmt = $this->pdo->prepare("SELECT * FROM utilisateurs WHERE nom_d_utilisateur = :nom_d_utilisateur");
+        $stmt->execute([':nom_d_utilisateur' => $nomUtilisateur]);
+        $utilisateur = $stmt->fetch();
+        
+        
+        $this->assertNotFalse($utilisateur);
+        $this->assertSame($nomUtilisateur, $utilisateur['nom_d_utilisateur']);
+        $this->assertSame($email, $utilisateur['email']);
+        
+    
+        $this->assertTrue(password_verify($motDePasse, $utilisateur['mot_de_passe']));
+    }
+}
+?>
+
+testtesteur7.php
+
+<?php
+use PHPUnit\Framework\TestCase;
+
+class testtesteur7 extends TestCase
+{
+    protected function setUp(): void
+    {
+        // Start the session before each test
+        session_start();
+    }
+
+    public function testGestionSession()
+    {
+        // Set a session variable
+        $_SESSION['user_id'] = 1;
+        $this->assertSame(1, $_SESSION['user_id']);
+
+        // Unset the session variable and destroy the session
+        unset($_SESSION['user_id']);
+        $this->assertArrayNotHasKey('user_id', $_SESSION);
+
+        // Destroy the session completely
+        session_destroy();
+    }
+}
+?>
+
+testtesteur3.php
+
+<?php
+
+
+use PHPUnit\Framework\TestCase;
+
+class testtesteur3 extends TestCase
+{
+    private $pdo;
+    private $registration;
+
+    protected function setUp(): void
+    {
+        
+        $this->pdo = new PDO('sqlite::memory:');
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createTable();
+        $this->registration = new Registration($this->pdo);
+    }
+
+    private function createTable()
+    {
+        
+        $sql = "
+        CREATE TABLE utilisateurs (
+            id INTEGER PRIMARY KEY,
+            nom_d_utilisateur TEXT,
+            mot_de_passe TEXT,
+            email TEXT
+        )";
+        $this->pdo->exec($sql);
+    }
+
+    public function testFormatEmailInvalide()
+    {
+        
+        $nomUtilisateur = "testuser";
+        $motDePasse = "Test@1234";
+        $email = "emailinvalid"; 
+
+       
+        $resultat = $this->registration->registerUser($nomUtilisateur, $motDePasse, $email);
+        
+       
+        $this->assertFalse($resultat);
+    }
+}
+?>
+
